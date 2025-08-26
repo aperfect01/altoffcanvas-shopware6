@@ -1,0 +1,31 @@
+{
+    "name": "custom/alt-offcanvas",
+    "description": "Alternative off-canvas cart with cross-selling functionality",
+    "type": "shopware-platform-plugin",
+    "license": "MIT",
+    "version": "1.0.0",
+    "authors": [
+        {
+            "name": "Developer"
+        }
+    ],
+    "require": {
+        "shopware/core": "~6.4.0|~6.5.0|6.7.1.2"
+    },
+    "extra": {
+        "shopware-plugin-class": "AltOffCanvas\\AltOffCanvas",
+        "label": {
+            "en-GB": "Alternative Off-canvas Cart",
+            "de-DE": "Alternative Off-canvas Warenkorb"
+        },
+        "description": {
+            "en-GB": "Custom off-canvas cart with minimal view and cross-selling products",
+            "de-DE": "Angepasster Off-canvas Warenkorb mit minimaler Ansicht und Cross-Selling Produkten"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "AltOffCanvas\\": "src/"
+        }
+    }
+}

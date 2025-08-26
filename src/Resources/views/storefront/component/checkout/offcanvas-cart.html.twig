@@ -1,0 +1,27 @@
+{# Extend the original template FIRST #}
+{% sw_extends '@Storefront/storefront/component/checkout/offcanvas-cart.html.twig' %}
+
+{# Override the main offcanvas block to add our test banner #}
+{% block component_offcanvas_cart %}
+    {# Very visible test banner #}
+    <div style="background: linear-gradient(45deg, #ff6b6b, #4ecdc4); color: white; padding: 15px; text-align: center; font-weight: bold; border-radius: 5px; margin-bottom: 10px;">
+        🎯 AltOffCanvas Plugin Active! 🎯<br>
+        <small>Template override is working correctly</small>
+    </div>
+
+    {# Debug info #}
+    <div style="background: #e8f5e8; padding: 8px; margin: 5px 0; border-radius: 3px; font-size: 12px;">
+        <strong>Debug Info:</strong><br>
+        Cart Items: {{ page.cart.lineItems|length }}<br>
+        Plugin: AltOffCanvas v1.0.0<br>
+        Template: offcanvas-cart.html.twig
+    </div>
+
+    {# Include original content #}
+    {{ parent() }}
+
+    {# Footer info #}
+    <div style="text-align: center; padding: 10px; font-size: 11px; color: #666; border-top: 1px solid #eee;">
+        Powered by AltOffCanvas Plugin
+    </div>
+{% endblock %}
