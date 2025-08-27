@@ -1,27 +1,98 @@
 {# Extend the original template FIRST #}
 {% sw_extends '@Storefront/storefront/component/checkout/offcanvas-cart.html.twig' %}
 
-{# Override the main offcanvas block to add our test banner #}
+{# Override the main offcanvas block #}
 {% block component_offcanvas_cart %}
-    {# Very visible test banner #}
+    {# Detect if this is add-to-cart based on flash messages #}
+    {% set isAddToCart = app.flashes is defined and app.flashes is not empty %}
+    
+    {# Plugin Active Banner #}
     <div style="background: linear-gradient(45deg, #ff6b6b, #4ecdc4); color: white; padding: 15px; text-align: center; font-weight: bold; border-radius: 5px; margin-bottom: 10px;">
         🎯 AltOffCanvas Plugin Active! 🎯<br>
-        <small>Template override is working correctly</small>
+        <small>{{ isAddToCart ? 'MINIMAL VIEW (Add to Cart)' : 'FULL VIEW (Cart Click)' }}</small>
     </div>
 
-    {# Debug info #}
-    <div style="background: #e8f5e8; padding: 8px; margin: 5px 0; border-radius: 3px; font-size: 12px;">
-        <strong>Debug Info:</strong><br>
-        Cart Items: {{ page.cart.lineItems|length }}<br>
-        Plugin: AltOffCanvas v1.0.0<br>
-        Template: offcanvas-cart.html.twig
-    </div>
+    {# Debug info to confirm detection #}
+    {# Add this precise debug section #}
+<div style="background: #ffeb3b; padding: 15px; margin: 10px 0; border: 2px solid #f57f17; font-family: monospace; font-size: 12px;">
+    <strong>🔍 PRECISE FLASH DEBUG:</strong><br><br>
+    
+    <strong>Step by step evaluation:</strong><br>
+    1. app.flashes is defined: <strong>{{ app.flashes is defined ? 'TRUE' : 'FALSE' }}</strong><br>
+    2. app.flashes is empty: <strong>{{ app.flashes is empty ? 'TRUE' : 'FALSE' }}</strong><br>
+    3. app.flashes is not empty: <strong>{{ app.flashes is not empty ? 'TRUE' : 'FALSE' }}</strong><br>
+    4. Final AND result: <strong>{{ (app.flashes is defined and app.flashes is not empty) ? 'TRUE' : 'FALSE' }}</strong><br><br>
+    
+    <strong>Flash content:</strong><br>
+    Type: {{ app.flashes is defined ? (app.flashes|length > 0 ? 'Array with ' ~ app.flashes|length ~ ' items' : 'Empty array') : 'Undefined' }}<br>
+    Raw dump: {{ dump(app.flashes) }}<br><br>
+    
+    <strong>Expected behavior:</strong><br>
+    If both show empty array [], detection should be identical<br>
+    But we're seeing different views - WHY?<br><br>
+    
+    <strong>Current detection result:</strong><br>
+    isAddToCart = <strong style="color: red;">{{ isAddToCart ? 'TRUE (Minimal View)' : 'FALSE (Full View)' }}</strong>
+</div>
 
-    {# Include original content #}
-    {{ parent() }}
-
-    {# Footer info #}
-    <div style="text-align: center; padding: 10px; font-size: 11px; color: #666; border-top: 1px solid #eee;">
-        Powered by AltOffCanvas Plugin
-    </div>
+    {% if isAddToCart %}
+        {# MINIMAL VIEW: Show only last added item #}
+        <div style="background: #e3f2fd; padding: 15px; border-radius: 5px;">
+            <h3 style="margin: 0 0 15px 0; font-size: 18px; color: #1976d2;">✅ Item Added to Cart</h3>
+            
+            {% if page.cart.lineItems|length > 0 %}
+                {% set lastItem = page.cart.lineItems|last %}
+                <div style="display: flex; align-items: center; gap: 15px; background: white; padding: 15px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    {# Product image #}
+                    {% if lastItem.cover %}
+                        <img src="{{ lastItem.cover.url }}" alt="{{ lastItem.label }}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 5px;">
+                    {% else %}
+                        <div style="width: 80px; height: 80px; background: #f5f5f5; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 24px;">📦</div>
+                    {% endif %}
+                    
+                    {# Product details #}
+                    <div style="flex: 1;">
+                        <div style="font-weight: bold; font-size: 16px; margin-bottom: 5px; color: #333;">{{ lastItem.label }}</div>
+                        <div style="color: #666; margin-bottom: 5px;">Quantity: <strong>{{ lastItem.quantity }}</strong></div>
+                        <div style="color: #1976d2; font-weight: bold; font-size: 18px;">{{ lastItem.price.totalPrice|currency }}</div>
+                    </div>
+                </div>
+                
+                {# Cart summary #}
+                <div style="margin-top: 20px; padding: 15px; background: white; border-radius: 5px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px;">
+                        <span>Items in Cart:</span>
+                        <strong>{{ page.cart.lineItems|length }}</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 16px;">
+                        <span>Cart Total:</span>
+                        <strong style="color: #1976d2;">{{ page.cart.price.totalPrice|currency }}</strong>
+                    </div>
+                    
+                    {# Action buttons #}
+                    <div style="display: flex; gap: 10px;">
+                        <button onclick="document.querySelector('.offcanvas-backdrop').click()" style="flex: 1; padding: 12px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; font-weight: bold;">
+                            Continue Shopping
+                        </button>
+                        <a href="{{ path('frontend.checkout.cart.page') }}" style="flex: 1; padding: 12px; background: #1976d2; color: white; text-align: center; text-decoration: none; border-radius: 5px; display: block; font-weight: bold;">
+                            View Cart
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        
+        {# Placeholder for cross-selling #}
+        <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px; text-align: center; border: 2px dashed #dee2e6;">
+            <div style="color: #6c757d; font-size: 14px; margin-bottom: 5px;">🛍️ Cross-selling Products</div>
+            <div style="color: #adb5bd; font-size: 12px;">Coming in Part 2 of the implementation</div>
+        </div>
+        
+    {% else %}
+        {# FULL VIEW: Show original cart content #}
+        <div style="background: #fff3e0; padding: 10px; margin-bottom: 10px; border-radius: 5px; border-left: 4px solid #ff9800;">
+            <strong>📋 Full Cart View</strong> - Showing all {{ page.cart.lineItems|length }} items (clicked cart icon)
+        </div>
+        {{ parent() }}
+    {% endif %}
 {% endblock %}
