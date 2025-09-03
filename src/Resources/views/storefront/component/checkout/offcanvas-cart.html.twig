@@ -5,36 +5,9 @@
 {% block component_offcanvas_cart %}
     {# Detect if this is add-to-cart based on flash messages #}
     {% set isAddToCart = app.flashes is defined and app.flashes is not empty %}
-    
-    {# Plugin Active Banner #}
-    <div style="background: linear-gradient(45deg, #ff6b6b, #4ecdc4); color: white; padding: 15px; text-align: center; font-weight: bold; border-radius: 5px; margin-bottom: 10px;">
-        🎯 AltOffCanvas Plugin Active! 🎯<br>
-        <small>{{ isAddToCart ? 'MINIMAL VIEW (Add to Cart)' : 'FULL VIEW (Cart Click)' }}</small>
-    </div>
-
-    {# Debug info to confirm detection #}
-    {# Add this precise debug section #}
-<div style="background: #ffeb3b; padding: 15px; margin: 10px 0; border: 2px solid #f57f17; font-family: monospace; font-size: 12px;">
-    <strong>🔍 PRECISE FLASH DEBUG:</strong><br><br>
-    
-    <strong>Step by step evaluation:</strong><br>
-    1. app.flashes is defined: <strong>{{ app.flashes is defined ? 'TRUE' : 'FALSE' }}</strong><br>
-    2. app.flashes is empty: <strong>{{ app.flashes is empty ? 'TRUE' : 'FALSE' }}</strong><br>
-    3. app.flashes is not empty: <strong>{{ app.flashes is not empty ? 'TRUE' : 'FALSE' }}</strong><br>
-    4. Final AND result: <strong>{{ (app.flashes is defined and app.flashes is not empty) ? 'TRUE' : 'FALSE' }}</strong><br><br>
-    
-    <strong>Flash content:</strong><br>
-    Type: {{ app.flashes is defined ? (app.flashes|length > 0 ? 'Array with ' ~ app.flashes|length ~ ' items' : 'Empty array') : 'Undefined' }}<br>
-    Raw dump: {{ dump(app.flashes) }}<br><br>
-    
-    <strong>Expected behavior:</strong><br>
-    If both show empty array [], detection should be identical<br>
-    But we're seeing different views - WHY?<br><br>
-    
-    <strong>Current detection result:</strong><br>
-    isAddToCart = <strong style="color: red;">{{ isAddToCart ? 'TRUE (Minimal View)' : 'FALSE (Full View)' }}</strong>
-</div>
-
+{% for crossSelling in page.crossSellings %}
+    <div>{{ crossSelling.name }}</div>
+{% endfor %}
     {% if isAddToCart %}
         {# MINIMAL VIEW: Show only last added item #}
         <div style="background: #e3f2fd; padding: 15px; border-radius: 5px;">
@@ -83,10 +56,28 @@
         </div>
         
         {# Placeholder for cross-selling #}
-        <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px; text-align: center; border: 2px dashed #dee2e6;">
-            <div style="color: #6c757d; font-size: 14px; margin-bottom: 5px;">🛍️ Cross-selling Products</div>
-            <div style="color: #adb5bd; font-size: 12px;">Coming in Part 2 of the implementation</div>
-        </div>
+        {% set crossSelling = page.extensions.altCrossSelling %}
+
+        {% if page.extensions.crossSellingProducts and page.extensions.crossSellingProducts.products|length > 0 %}
+            <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+                <h4 style="margin-bottom: 10px; color: #1282f1ff;">🛍️ You might also like</h4>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    {% for product in page.extensions.crossSellingProducts.products %}
+                        <div style="display: flex; align-items: center; gap: 10px; background: white; padding: 10px; border-radius: 5px; border: 1px solid #dee2e6;">
+                            <img src="{{ product.cover.media.url }}" alt="{{ product.translated.name }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 3px;">
+                            <div style="flex: 1;">
+                                <div style="font-size: 14px; font-weight: bold;">{{ product.translated.name }}</div>
+                                <div style="color: #1976d2; font-weight: bold;">{{ product.calculatedPrice.unitPrice|currency }}</div>
+                            </div>
+                            {% sw_include '@Storefront/storefront/component/product/card/action.html.twig' with { 'product': product } %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+
+
         
     {% else %}
         {# FULL VIEW: Show original cart content #}

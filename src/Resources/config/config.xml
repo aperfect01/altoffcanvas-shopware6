@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://schemas.shopware.com/config/1.0/config.xsd">
+
+    <card>
+        <title>Cross Selling Settings</title>
+        <input-field type="text">
+            <name>crossSellingIndex</name>
+            <label>Cross Selling Index</label>
+        </input-field>
+    </card>
+
+</config>

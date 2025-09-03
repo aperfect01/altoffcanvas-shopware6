@@ -1,0 +1,11 @@
+{% block sw_product_detail_base_content %}
+    {{ parent() }}
+
+    <sw-card title="Cross Selling">
+        <sw-field
+            type="number"
+            label="Cross Selling Index"
+            v-model="product.extensions.customFields.cross_selling_index"
+        />
+    </sw-card>
+{% endblock %}
