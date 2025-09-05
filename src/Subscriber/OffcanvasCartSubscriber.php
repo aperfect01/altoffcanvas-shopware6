@@ -31,7 +31,8 @@ class OffcanvasCartSubscriber implements EventSubscriberInterface
 
     public function onOffcanvasCartLoaded(OffcanvasCartPageLoadedEvent $event): void
     {
-        error_log('=== OffcanvasCartSubscriber called ===');
+        try {
+            error_log('=== OffcanvasCartSubscriber called ===');
         
         $page = $event->getPage();
         $cart = $page->getCart();
@@ -89,6 +90,9 @@ class OffcanvasCartSubscriber implements EventSubscriberInterface
             'productId' => $addedProductId,
         ]));
         
-        error_log('=== Setting addedProductId extension: ' . $addedProductId);
+            error_log('=== Setting addedProductId extension: ' . $addedProductId);
+        } catch (\Exception $e) {
+            error_log('Error in OffcanvasCartSubscriber: ' . $e->getMessage());
+        }
     }
 }
