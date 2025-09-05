@@ -33,8 +33,6 @@
         {% set newestItem = page.cart.lineItems|last %}
     {% endif %}
     
-    <!-- DEBUG: addedProductId from subscriber: {{ addedProductId }} -->
-    <!-- DEBUG: newestItem found: {{ newestItem ? newestItem.label : 'null' }} (ID: {{ newestItem ? newestItem.referencedId : 'null' }}) -->
 {% for crossSelling in page.crossSellings %}
     <div>{{ crossSelling.name }}</div>
 {% endfor %}

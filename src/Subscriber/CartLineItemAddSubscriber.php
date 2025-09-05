@@ -30,8 +30,6 @@ class CartLineItemAddSubscriber implements EventSubscriberInterface
             
             // Check if this is a POST request to add line item
             if ($request->isMethod('POST') && $request->getPathInfo() === '/checkout/line-item/add') {
-                error_log('=== Caught POST /checkout/line-item/add ===');
-                
                 // Get the product ID from lineItems data
                 if ($request->request->has('lineItems')) {
                     $lineItems = $request->request->all('lineItems');
@@ -39,14 +37,11 @@ class CartLineItemAddSubscriber implements EventSubscriberInterface
                         $firstLineItem = reset($lineItems);
                         $productId = $firstLineItem['id'] ?? null;
                         
-                        error_log('Found product ID in POST data: ' . $productId);
-                        
                         if ($productId) {
                             // Store in session
                             $session = $request->getSession();
                             if ($session && $session->isStarted()) {
                                 $session->set('last_added_product', $productId);
-                                error_log('Successfully stored last_added_product in session: ' . $productId);
                             }
                         }
                     }

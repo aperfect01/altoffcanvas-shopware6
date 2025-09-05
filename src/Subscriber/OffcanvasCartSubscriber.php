@@ -32,7 +32,6 @@ class OffcanvasCartSubscriber implements EventSubscriberInterface
     public function onOffcanvasCartLoaded(OffcanvasCartPageLoadedEvent $event): void
     {
         try {
-            error_log('=== OffcanvasCartSubscriber called ===');
         
         $page = $event->getPage();
         $cart = $page->getCart();
@@ -49,26 +48,12 @@ class OffcanvasCartSubscriber implements EventSubscriberInterface
         
         if ($session && $session->isStarted()) {
             $addedProductId = $session->get('last_added_product');
-            $addedProductName = $session->get('last_added_product_name');
-            error_log('Found in session - ID: ' . $addedProductId . ', Name: ' . $addedProductName);
-        }
-        
-        // If we have a product name, try to find it in cart by name
-        if ($addedProductName) {
-            foreach ($cart->getLineItems() as $lineItem) {
-                if ($lineItem->getLabel() === $addedProductName) {
-                    $addedProductId = $lineItem->getReferencedId();
-                    error_log('Found matching product by name: ' . $addedProductName . ' -> ' . $addedProductId);
-                    break;
-                }
-            }
         }
         
         // Fallback to last item if no session data
         if (!$addedProductId) {
             $lastItem = $cart->getLineItems()->last();
             $addedProductId = $lastItem->getReferencedId();
-            error_log('Using fallback (last item): ' . $addedProductId);
         }
         
         $productId = $addedProductId;
@@ -116,7 +101,6 @@ class OffcanvasCartSubscriber implements EventSubscriberInterface
             'productId' => $addedProductId,
         ]));
         
-            error_log('=== Setting addedProductId extension: ' . $addedProductId);
         } catch (\Exception $e) {
             error_log('Error in OffcanvasCartSubscriber: ' . $e->getMessage());
         }
