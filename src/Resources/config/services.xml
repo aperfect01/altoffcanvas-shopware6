@@ -18,5 +18,9 @@
             <argument type="service" id="AltOffCanvas\Service\CrossSellingService"/>
             <tag name="kernel.event_subscriber"/>
         </service>
+        <service id="AltOffCanvas\Subscriber\CartLineItemAddSubscriber">
+            <argument type="service" id="request_stack"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 </container>

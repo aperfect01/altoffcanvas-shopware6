@@ -31,6 +31,8 @@ class OffcanvasCartSubscriber implements EventSubscriberInterface
 
     public function onOffcanvasCartLoaded(OffcanvasCartPageLoadedEvent $event): void
     {
+        error_log('=== OffcanvasCartSubscriber called ===');
+        
         $page = $event->getPage();
         $cart = $page->getCart();
 
@@ -38,9 +40,11 @@ class OffcanvasCartSubscriber implements EventSubscriberInterface
             return;
         }
 
-        // Use last added item (or you could loop all items for multiple cross-sellings)
+        // Use last added item (works for most cases, has known bug with consecutive identical adds)
         $lastItem = $cart->getLineItems()->last();
-        $productId = $lastItem->getReferencedId();
+        $addedProductId = $lastItem->getReferencedId();
+        
+        $productId = $addedProductId;
 
         if (!$productId) {
             return;
@@ -79,5 +83,12 @@ class OffcanvasCartSubscriber implements EventSubscriberInterface
                 'products' => $assignedProducts,
             ]));
         }
+        
+        // Also pass the added product ID to the template
+        $page->addExtension('addedProductId', new ArrayEntity([
+            'productId' => $addedProductId,
+        ]));
+        
+        error_log('=== Setting addedProductId extension: ' . $addedProductId);
     }
 }

@@ -3,98 +3,113 @@
 
 {# Override the main offcanvas block #}
 {% block component_offcanvas_cart %}
-    {# Detect if this is add-to-cart based on flash messages #}
-    {% set isAddToCart = app.flashes is defined and app.flashes is not empty %}
+    {# Detect if this is add-to-cart based on flash message content #}
+    {% set isAddToCart = false %}
+    {% set addedProductId = null %}
+    {% if app.flashes('success') is defined %}
+        {% for flash in app.flashes('success') %}
+            {% if 'added' in flash|lower or 'hinzugefügt' in flash|lower or 'product has been added' in flash|lower %}
+                {% set isAddToCart = true %}
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    
+    {# Get the added product ID from the subscriber #}
+    {% set addedProductId = page.extensions.addedProductId ? page.extensions.addedProductId.productId : null %}
+    
+    {# Find the specific line item that matches the added product #}
+    {% set newestItem = null %}
+    {% if addedProductId and page.cart.lineItems|length > 0 %}
+        {% for lineItem in page.cart.lineItems %}
+            {% if lineItem.referencedId == addedProductId %}
+                {% set newestItem = lineItem %}
+                {% break %}
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    
+    {# Fallback to last item if we couldn't find the specific one #}
+    {% if not newestItem and page.cart.lineItems|length > 0 %}
+        {% set newestItem = page.cart.lineItems|last %}
+    {% endif %}
 {% for crossSelling in page.crossSellings %}
     <div>{{ crossSelling.name }}</div>
 {% endfor %}
     {% if isAddToCart %}
-        {# MINIMAL VIEW: Show only last added item #}
-        <div style="background: #e3f2fd; padding: 15px; border-radius: 5px;">
-            <h3 style="margin: 0 0 15px 0; font-size: 18px; color: #1976d2;">✅ Item Added to Cart</h3>
+        <div class="alert alert-success mb-3">
+            <h3 class="h4" style="margin-bottom: 0 !important;">Item Added to Cart</h3>
             
-            {% if page.cart.lineItems|length > 0 %}
-                {% set lastItem = page.cart.lineItems|last %}
-                <div style="display: flex; align-items: center; gap: 15px; background: white; padding: 15px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    {# Product image #}
+        </div>
+        {% if page.cart.lineItems|length > 0 %}
+                {# Use the newest item we already found above #}
+                {% set lastItem = newestItem %}
+                <div class="d-flex align-items-center mb-3 p-3 bg-white">
                     {% if lastItem.cover %}
-                        <img src="{{ lastItem.cover.url }}" alt="{{ lastItem.label }}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 5px;">
+                        <img src="{{ lastItem.cover.url }}" alt="{{ lastItem.label }}" class="me-3 border rounded" style="width: 80px; height: 80px; object-fit: cover;">
                     {% else %}
-                        <div style="width: 80px; height: 80px; background: #f5f5f5; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 24px;">📦</div>
+                        <div class="me-3 d-flex align-items-center justify-content-center bg-light border rounded" style="width: 80px; height: 80px;">
+                            <span class="h4 text-muted">?</span>
+                        </div>
                     {% endif %}
                     
-                    {# Product details #}
-                    <div style="flex: 1;">
-                        <div style="font-weight: bold; font-size: 16px; margin-bottom: 5px; color: #333;">{{ lastItem.label }}</div>
-                        <div style="color: #666; margin-bottom: 5px;">Quantity: <strong>{{ lastItem.quantity }}</strong></div>
-                        <div style="color: #1976d2; font-weight: bold; font-size: 18px;">{{ lastItem.price.totalPrice|currency }}</div>
+                    <div class="flex-fill">
+                        <div class="fw-bold mb-1">{{ lastItem.label }}</div>
+                        <div class="text-muted mb-1">Quantity: <strong>{{ lastItem.quantity }}</strong></div>
+                        <div class="text-primary fw-bold">{{ lastItem.price.totalPrice|currency }}</div>
                     </div>
                 </div>
                 
-                {# Cart summary #}
-                <div style="margin-top: 20px; padding: 15px; background: white; border-radius: 5px;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px;">
-                        <span>Items in Cart:</span>
-                        <strong>{{ page.cart.lineItems|length }}</strong>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 16px;">
-                        <span>Cart Total:</span>
-                        <strong style="color: #1976d2;">{{ page.cart.price.totalPrice|currency }}</strong>
-                    </div>
-                    
-                    {# Action buttons #}
-                    <div style="display: flex; gap: 10px;">
-                        <button onclick="document.querySelector('.offcanvas-backdrop').click()" style="flex: 1; padding: 12px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; font-weight: bold;">
-                            Continue Shopping
-                        </button>
-                        <a href="{{ path('frontend.checkout.cart.page') }}" style="flex: 1; padding: 12px; background: #1976d2; color: white; text-align: center; text-decoration: none; border-radius: 5px; display: block; font-weight: bold; align-content:center;">
-                            View Cart
-                        </a>
-                    </div>
-                </div>
+            
             {% endif %}
-        </div>
         
-        {# Placeholder for cross-selling #}
-        {% set crossSelling = page.extensions.altCrossSelling %}
-
         {% if page.extensions.crossSellingProducts and page.extensions.crossSellingProducts.products|length > 0 %}
-            <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
-                <h4 style="margin-bottom: 12px; color: #1282f1; font-weight: 600; font-size: 16px;">
-                    🛍️ You might also like
+            <div class="mb-3">
+                <h4 class="h5 mb-3 text-primary fw-semibold">
+                    You might also like
                 </h4>
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px;">
+                <div class="row g-3">
                     {% for product in page.extensions.crossSellingProducts.products %}
-                        <div style="background: white; padding: 10px; border-radius: 6px; border: 1px solid #dee2e6; display: flex; flex-direction: column; align-items: center; text-align: center;">
-                            <img src="{{ product.cover.media.url }}" alt="{{ product.translated.name }}" 
-                                style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px; margin-bottom: 8px;">
-                            
-                            <div style="font-size: 14px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%;">
-                                {{ product.translated.name }}
-                            </div>
-                            
-                            <div style="color: #1976d2; font-weight: bold; font-size: 14px; margin-bottom: 6px;">
-                                {{ product.calculatedPrice.unitPrice|currency }}
-                            </div>
-                            
-                            <div>
+                        <div class="col-6">
+                            <div class="card h-100 text-center border rounded">
+                                <div class="card-body p-2">
+                                    <img src="{{ product.cover.media.url }}" alt="{{ product.translated.name }}" 
+                                        class="img-fluid mb-2 rounded" style="width: 100px; height: 100px; object-fit: cover;">
+                                    
+                                    <div class="small fw-semibold mb-1 text-truncate">
+                                        {{ product.translated.name }}
+                                    </div>
+                                    
+                                    <div class="text-primary fw-bold small mb-2">
+                                        {% if product.calculatedPrice %}
+                                            {{ product.calculatedPrice.unitPrice|currency }}
+                                        {% elseif product.price %}
+                                            {{ product.price.first.gross|currency }}
+                                        {% else %}
+                                            {{ product.cheapestPrice.price.first.gross|currency }}
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <form action="{{ path('frontend.checkout.line-item.add') }}" method="post" class="buy-widget" data-add-to-cart="true">
+                                        <input type="hidden" name="lineItems[{{ product.id }}][id]" value="{{ product.id }}">
+                                        <input type="hidden" name="lineItems[{{ product.id }}][type]" value="product">
+                                        <input type="hidden" name="lineItems[{{ product.id }}][quantity]" value="1">
+                                        <input type="hidden" name="redirectTo" value="{{ app.request.get('_route') }}">
+                                        <input type="hidden" name="redirectParameters" value="{{ app.request.get('_route_params')|json_encode }}">
+                                        <button type="submit" class="btn btn-primary btn-sm w-100">Add to Cart</button>
+                                    </form>
+
+                                    <div>
                                 {% sw_include '@Storefront/storefront/component/product/card/action.html.twig' with { 'product': product } %}
+                            </div>
+                                </div>
                             </div>
                         </div>
                     {% endfor %}
                 </div>
             </div>
         {% endif %}
-
-
-
-
         
     {% else %}
-        {# FULL VIEW: Show original cart content #}
-        <div style="background: #fff3e0; padding: 10px; margin-bottom: 10px; border-radius: 5px; border-left: 4px solid #ff9800;">
-            <strong>📋 Full Cart View</strong> - Showing all {{ page.cart.lineItems|length }} items (clicked cart icon)
-        </div>
         {{ parent() }}
     {% endif %}
 {% endblock %}
