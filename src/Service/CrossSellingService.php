@@ -32,7 +32,8 @@ class CrossSellingService
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('productId', $product->getId()))
             ->addAssociation('assignedProducts')
-            ->addAssociation('assignedProducts.product.cover');
+            ->addAssociation('assignedProducts.product.cover')
+            ->addAssociation('assignedProducts.product.cover.media');
 
         $crossSellingsResult = $this->crossSellingRepository->search($criteria, $context->getContext());
 

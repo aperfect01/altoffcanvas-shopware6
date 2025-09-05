@@ -47,7 +47,7 @@
                         <button onclick="document.querySelector('.offcanvas-backdrop').click()" style="flex: 1; padding: 12px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; font-weight: bold;">
                             Continue Shopping
                         </button>
-                        <a href="{{ path('frontend.checkout.cart.page') }}" style="flex: 1; padding: 12px; background: #1976d2; color: white; text-align: center; text-decoration: none; border-radius: 5px; display: block; font-weight: bold;">
+                        <a href="{{ path('frontend.checkout.cart.page') }}" style="flex: 1; padding: 12px; background: #1976d2; color: white; text-align: center; text-decoration: none; border-radius: 5px; display: block; font-weight: bold; align-content:center;">
                             View Cart
                         </a>
                     </div>
@@ -59,22 +59,33 @@
         {% set crossSelling = page.extensions.altCrossSelling %}
 
         {% if page.extensions.crossSellingProducts and page.extensions.crossSellingProducts.products|length > 0 %}
-            <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
-                <h4 style="margin-bottom: 10px; color: #1282f1ff;">🛍️ You might also like</h4>
-                <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                <h4 style="margin-bottom: 12px; color: #1282f1; font-weight: 600; font-size: 16px;">
+                    🛍️ You might also like
+                </h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px;">
                     {% for product in page.extensions.crossSellingProducts.products %}
-                        <div style="display: flex; align-items: center; gap: 10px; background: white; padding: 10px; border-radius: 5px; border: 1px solid #dee2e6;">
-                            <img src="{{ product.cover.media.url }}" alt="{{ product.translated.name }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 3px;">
-                            <div style="flex: 1;">
-                                <div style="font-size: 14px; font-weight: bold;">{{ product.translated.name }}</div>
-                                <div style="color: #1976d2; font-weight: bold;">{{ product.calculatedPrice.unitPrice|currency }}</div>
+                        <div style="background: white; padding: 10px; border-radius: 6px; border: 1px solid #dee2e6; display: flex; flex-direction: column; align-items: center; text-align: center;">
+                            <img src="{{ product.cover.media.url }}" alt="{{ product.translated.name }}" 
+                                style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px; margin-bottom: 8px;">
+                            
+                            <div style="font-size: 14px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%;">
+                                {{ product.translated.name }}
                             </div>
-                            {% sw_include '@Storefront/storefront/component/product/card/action.html.twig' with { 'product': product } %}
+                            
+                            <div style="color: #1976d2; font-weight: bold; font-size: 14px; margin-bottom: 6px;">
+                                {{ product.calculatedPrice.unitPrice|currency }}
+                            </div>
+                            
+                            <div>
+                                {% sw_include '@Storefront/storefront/component/product/card/action.html.twig' with { 'product': product } %}
+                            </div>
                         </div>
                     {% endfor %}
                 </div>
             </div>
         {% endif %}
+
 
 
 
