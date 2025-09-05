@@ -41,9 +41,35 @@ class OffcanvasCartSubscriber implements EventSubscriberInterface
             return;
         }
 
-        // Use last added item (works for most cases, has known bug with consecutive identical adds)
-        $lastItem = $cart->getLineItems()->last();
-        $addedProductId = $lastItem->getReferencedId();
+        // Try to get the actual added product from session
+        $request = $event->getRequest();
+        $session = $request->getSession();
+        $addedProductId = null;
+        $addedProductName = null;
+        
+        if ($session && $session->isStarted()) {
+            $addedProductId = $session->get('last_added_product');
+            $addedProductName = $session->get('last_added_product_name');
+            error_log('Found in session - ID: ' . $addedProductId . ', Name: ' . $addedProductName);
+        }
+        
+        // If we have a product name, try to find it in cart by name
+        if ($addedProductName) {
+            foreach ($cart->getLineItems() as $lineItem) {
+                if ($lineItem->getLabel() === $addedProductName) {
+                    $addedProductId = $lineItem->getReferencedId();
+                    error_log('Found matching product by name: ' . $addedProductName . ' -> ' . $addedProductId);
+                    break;
+                }
+            }
+        }
+        
+        // Fallback to last item if no session data
+        if (!$addedProductId) {
+            $lastItem = $cart->getLineItems()->last();
+            $addedProductId = $lastItem->getReferencedId();
+            error_log('Using fallback (last item): ' . $addedProductId);
+        }
         
         $productId = $addedProductId;
 

@@ -14,12 +14,12 @@
         {% endfor %}
     {% endif %}
     
-    {# Get the added product ID from the subscriber #}
+    {# Get the added product ID from the subscriber and find the matching line item #}
     {% set addedProductId = page.extensions.addedProductId ? page.extensions.addedProductId.productId : null %}
-    
-    {# Find the specific line item that matches the added product #}
     {% set newestItem = null %}
-    {% if addedProductId and page.cart.lineItems|length > 0 %}
+    
+    {# If we have the correct product ID from subscriber, find the matching line item #}
+    {% if addedProductId %}
         {% for lineItem in page.cart.lineItems %}
             {% if lineItem.referencedId == addedProductId %}
                 {% set newestItem = lineItem %}
@@ -32,6 +32,9 @@
     {% if not newestItem and page.cart.lineItems|length > 0 %}
         {% set newestItem = page.cart.lineItems|last %}
     {% endif %}
+    
+    <!-- DEBUG: addedProductId from subscriber: {{ addedProductId }} -->
+    <!-- DEBUG: newestItem found: {{ newestItem ? newestItem.label : 'null' }} (ID: {{ newestItem ? newestItem.referencedId : 'null' }}) -->
 {% for crossSelling in page.crossSellings %}
     <div>{{ crossSelling.name }}</div>
 {% endfor %}
