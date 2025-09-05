@@ -114,8 +114,7 @@ The plugin includes a configuration system accessible through:
 
 2. **Available Settings**
    - **Cross-selling Index**: Configure which cross-selling group to prioritize
-   - **Display Options**: Customize the appearance of the off-canvas cart
-   - **Product Limit**: Set maximum number of cross-selling products to display
+   - **Sales Channel**: Configure what sales channel to use
 
 ## Technical Details
 
@@ -140,7 +139,6 @@ The cross-selling functionality works by:
 1. Determining the last added item in the cart
 2. Loading the product's configured cross-selling groups
 3. Filtering and sorting cross-selling products
-4. Limiting results to the configured maximum number
 
 ### Template Structure
 
@@ -152,8 +150,6 @@ The custom template provides:
 
 ## Troubleshooting
 
-### Common Issues
-
 **Off-canvas not showing custom template**
 - Ensure the plugin is activated: `bin/console plugin:list`
 - Clear cache: `bin/console cache:clear`
@@ -164,23 +160,10 @@ The custom template provides:
 - Check that cross-selling products are active and available
 - Ensure cross-selling groups have products assigned
 
-**Wrong product shown as "recently added"**
-- This is a known limitation when adding the same product multiple times consecutively
-- The plugin works correctly when adding different products
-
 **Styling issues**
 - Verify Bootstrap is loaded in your theme
 - Check for CSS conflicts in browser developer tools
 - Ensure theme compatibility with Bootstrap classes
-
-### Debug Mode
-
-Enable debug logging by adding to your `.env.local`:
-```
-APP_LOG_LEVEL=debug
-```
-
-Check logs at `var/log/dev.log` for plugin-specific messages.
 
 ### Performance Considerations
 
